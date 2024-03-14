@@ -71,3 +71,13 @@ Distributed under the MIT License.
 ## Support
 
 If you need assistance or have any questions, feel free to open an issue on the GitHub repository.
+
+
+## @TODO
+- [ ] Change rights of the playlist file when creating it 
+- [ ] Manage properly rights for the admin cogs (everyone can use it when loaded right now)
+- [ ] Poll plugin
+   - [ ] Anonymous answers
+   - [ ] Reactions for the votes
+- [ ] Listener for easter-eggs
+- [ ] Reacts control or buttons for the music plugin 
