@@ -22,28 +22,30 @@ Before you can fully utilize Lambda-Bot, make sure you have the following prereq
 To get Lambda-Bot up and running on your server, follow these steps:
 
 1. **Clone the Repository**
-``https://github.com/s0ca/Lambda-Bot.git``
+```https://github.com/s0ca/Lambda-Bot.git```
 
 2. **Install Dependencies**
 Navigate to the cloned repository directory and install the required dependencies:
-``pip install -r requirements.txt``
+```pip install -r requirements.txt```
 
 3. **Set Up the Database for Note Taking**
 Before you can use the Note Taking plugin, you need to set up a database. Run the `init_db.py` script to create a SQLite3 database:
-``python init_db.py``
+```python init_db.py```
 This script initializes the necessary database structure for storing notes.
 
 4. **Configure the Bot**
 Before starting the bot, you need to configure it. Create a `.env` file in the root directory and add your bot's token:
 
-``BOT_TOKEN=
+```
+BOT_TOKEN=
 BOT_OWNER=
 DISCORD_GUILD=
-ADMIN_ROLE_NAME=``
+ADMIN_ROLE_NAME=
+```
 
 5. **Run the Bot**
 Finally, start the bot:
-``python LambdaBot.py``  
+```python LambdaBot.py```  
 
 
 ## Adding Plugins
