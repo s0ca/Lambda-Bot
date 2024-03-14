@@ -22,13 +22,6 @@ Before you can fully utilize Lambda-Bot, make sure you have the following prereq
 To get Lambda-Bot up and running on your server, follow these steps:
 
 1. **Clone the Repository**
-
-
-## Installation
-
-To get Lambda-Bot up and running on your server, follow these steps:
-
-1. **Clone the Repository**
 ``https://github.com/s0ca/Lambda-Bot.git``
 
 2. **Install Dependencies**
