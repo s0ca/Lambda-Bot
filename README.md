@@ -81,3 +81,5 @@ If you need assistance or have any questions, feel free to open an issue on the 
    - [ ] Reactions for the votes
 - [ ] Listener for easter-eggs
 - [ ] Reacts control or buttons for the music plugin 
+- [ ] Docker image
+- [ ] cogs manual ? (the commands are actually quiet understanding) 
