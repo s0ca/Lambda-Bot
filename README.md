@@ -10,6 +10,20 @@ Lambda-Bot comes equipped with a range of features, thanks to its plugin-based s
 - **Note Taking**: Easily take and organize notes for personal use or within a server channel.
 - **And More**: Lambda-Bot is constantly evolving, with new plugins and features being added regularly.
 
+## Prerequisites
+
+Before you can fully utilize Lambda-Bot, make sure you have the following prerequisites installed:
+
+- Python 3.6 or higher
+- `sqlite3` - Required for the Note Taking plugin to function properly.
+
+## Installation
+
+To get Lambda-Bot up and running on your server, follow these steps:
+
+1. **Clone the Repository**
+
+
 ## Installation
 
 To get Lambda-Bot up and running on your server, follow these steps:
@@ -21,7 +35,12 @@ To get Lambda-Bot up and running on your server, follow these steps:
 Navigate to the cloned repository directory and install the required dependencies:
 ``pip install -r requirements.txt``
 
-3. **Configure the Bot**
+3. **Set Up the Database for Note Taking**
+Before you can use the Note Taking plugin, you need to set up a database. Run the `init_db.py` script to create a SQLite3 database:
+``python init_db.py``
+This script initializes the necessary database structure for storing notes.
+
+4. **Configure the Bot**
 Before starting the bot, you need to configure it. Create a `.env` file in the root directory and add your bot's token:
 
 ``BOT_TOKEN=
@@ -29,7 +48,7 @@ BOT_OWNER=
 DISCORD_GUILD=
 ADMIN_ROLE_NAME=``
 
-4. **Run the Bot**
+5. **Run the Bot**
 Finally, start the bot:
 ``python LambdaBot.py``  
 
