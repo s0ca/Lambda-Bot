@@ -4,4 +4,4 @@ discord.py==2.3.2
 python-dotenv==1.0.1
 python_dateutil==2.8.2
 Requests==2.31.0
-yt_dlp==2023.12.30
+yt_dlp==2024.4.9
