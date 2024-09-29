@@ -12,7 +12,7 @@ class WarnManager(commands.Cog):
 
     def is_authorized():
         async def predicate(interaction: discord.Interaction):
-            authorized_role = discord.utils.get(interaction.guild.roles, id=XXXX)  # ID du rôle autorisé
+            authorized_role = discord.utils.get(interaction.guild.roles, id=872166166666293278)  # ID du rôle autorisé 872166166666293278
             if authorized_role not in interaction.user.roles:
                 raise commands.CheckFailure("unauthorized")  # Déclenche une exception si non autorisé
             return True
@@ -64,7 +64,7 @@ class WarnManager(commands.Cog):
 
     async def apply_punishment(self, member: discord.Member, duration: str):
         """Appliquer la sanction en retirant le rôle pour une durée donnée"""
-        role = discord.utils.get(member.guild.roles, id=XXXX)  # ID du rôle à supprimer provisoirement
+        role = discord.utils.get(member.guild.roles, id=707258582017638481)  # ID du rôle à supprimer provisoirement
         bot_member = member.guild.me
 
         if role >= bot_member.top_role:
@@ -115,6 +115,47 @@ class WarnManager(commands.Cog):
             print(f"Erreur de conversion de la durée : {duration}. Utilisation de la durée par défaut (10 minutes).")
             return timedelta(minutes=10)
 
+    @discord.app_commands.command(name="reset_warn", description="Réinitialiser les warnings d'un utilisateur.")
+    @is_authorized()  # Vérification que l'utilisateur qui exécute la commande est autorisé
+    async def reset_warn(self, interaction: discord.Interaction, member: discord.Member):
+        """Réinitialiser les warnings d'un utilisateur"""
+
+        # Vérifier si l'utilisateur a des warnings
+        if member.id in self.warnings and self.warnings[member.id]:
+            # Réinitialiser les warnings de l'utilisateur
+            self.warnings[member.id] = []
+            await interaction.response.send_message(f"Les warnings de {member.mention} ont été réinitialisés.", ephemeral=True)
+            print(f"Warnings réinitialisés pour {member.name}")
+        else:
+            # Si l'utilisateur n'a pas de warnings
+            await interaction.response.send_message(f"{member.mention} n'a pas de warnings à réinitialiser.", ephemeral=True)
+            print(f"Aucun warning à réinitialiser pour {member.name}")
+   
+    @discord.app_commands.command(name="list_warns", description="Afficher tous les utilisateurs avec des warnings en cours.")
+    @is_authorized()  # Vérification que l'utilisateur qui exécute la commande est autorisé
+    async def list_warns(self, interaction: discord.Interaction):
+        """Lister tous les utilisateurs avec des warnings en cours"""
+
+        # Créer un embed pour afficher la liste des utilisateurs avec warnings
+        embed = discord.Embed(title="📋 Liste des utilisateurs avec warnings", color=discord.Color.blue())
+
+        # Vérifier s'il y a des utilisateurs avec des warnings
+        if self.warnings:
+            has_warns = False  # Un flag pour vérifier si au moins un utilisateur a des warns
+            for user_id, warns in self.warnings.items():
+                if warns:  # Si l'utilisateur a au moins un warning en cours
+                    user = await interaction.guild.fetch_member(user_id)
+                    embed.add_field(name=user.display_name, value=f"{len(warns)} warnings en cours", inline=False)
+                    has_warns = True
+        
+            if not has_warns:
+                embed.description = "Aucun utilisateur n'a de warnings en cours."
+        else:
+            embed.description = "Aucun utilisateur n'a de warnings en cours."
+
+        # Envoyer l'embed
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
     # Gérer les erreurs globalement avec des réponses aléatoires
     @commands.Cog.listener()
     async def on_app_command_error(self, interaction: discord.Interaction, error):
@@ -125,7 +166,9 @@ class WarnManager(commands.Cog):
                 "Essaye encore, mais avec un peu plus d'autorité peut-être.",
                 "Non, tu n'as pas les droits pour faire ça, désolé.",
                 "Tu penses vraiment pouvoir utiliser cette commande? Pas aujourd'hui.",
-                "Accès refusé. Peut-être un jour, mais pas maintenant."
+                "Accès refusé. Peut-être un jour, mais pas maintenant.",
+                "Les recrutements sont clos pour ce job. Désolé",
+                "Voir avec Soupole"
             ]
 
             # Choisir une réponse au hasard
