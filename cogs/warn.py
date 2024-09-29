@@ -1,6 +1,7 @@
 import discord
 import asyncio
 from discord.ext import commands
+from discord import app_commands
 from datetime import datetime, timedelta
 import random
 
@@ -9,14 +10,47 @@ class WarnManager(commands.Cog):
         self.bot = bot
         self.warnings = {}  # Stockage des warns par utilisateur (id)
         self.warn_expiry = 24  # Durée d'expiration des warns (en heures)
-
+    
     def is_authorized():
         async def predicate(interaction: discord.Interaction):
-            authorized_role = discord.utils.get(interaction.guild.roles, id=872166166666293278)  # ID du rôle autorisé 872166166666293278
+            print("Vérification des permissions (slash commands)...")  # Log pour savoir si la fonction est appelée
+
+            # Récupérer le rôle par son ID
+            authorized_role = discord.utils.get(interaction.guild.roles, id=xxxx)  # Mettre ici l'ID du rôle autorisé
+
+            # Vérifier si le rôle a été trouvé dans le serveur
+            if not authorized_role:
+                print("Erreur : rôle non trouvé. Vérifie l'ID du rôle.")
+                raise app_commands.CheckFailure("unauthorized")
+
+            # Vérifier si l'utilisateur a le rôle
             if authorized_role not in interaction.user.roles:
-                raise commands.CheckFailure("unauthorized")  # Déclenche une exception si non autorisé
+                print(f"L'utilisateur {interaction.user} n'a pas le rôle requis.")
+
+                # Choisir une réponse aléatoire parmi les phrases personnalisées
+                error_responses = [
+                    "T'as cru avoir suffisamment d'importance pour avoir le droit d'utiliser cette commande?",
+                    "Essaye encore, mais avec un peu plus d'autorité peut-être.",
+                    "Tu penses vraiment pouvoir utiliser cette commande? Pas aujourd'hui.",
+                    "Les recrutements sont clos pour ce job. Désolé",
+                    "Voir avec Soupole"
+                ]
+
+                random_response = random.choice(error_responses)
+
+                # Envoyer le message personnalisé à l'utilisateur
+                try:
+                    await interaction.response.send_message(random_response, ephemeral=False)
+                except discord.errors.InteractionResponded:
+                    await interaction.followup.send(random_response, ephemeral=False)
+
+                raise app_commands.CheckFailure("unauthorized")  # Déclenche une exception si non autorisé
+            else:
+                print(f"L'utilisateur {interaction.user} a bien le rôle requis.")
+
             return True
-        return commands.check(predicate)
+
+        return app_commands.check(predicate)
 
     @discord.app_commands.command(name="warn", description="Avertir un utilisateur avec une sanction")
     @is_authorized()  # Appliquer le check pour limiter l'accès à certains rôles
@@ -64,7 +98,7 @@ class WarnManager(commands.Cog):
 
     async def apply_punishment(self, member: discord.Member, duration: str):
         """Appliquer la sanction en retirant le rôle pour une durée donnée"""
-        role = discord.utils.get(member.guild.roles, id=707258582017638481)  # ID du rôle à supprimer provisoirement
+        role = discord.utils.get(member.guild.roles, id=xxxx)  # ID du rôle à supprimer provisoirement
         bot_member = member.guild.me
 
         if role >= bot_member.top_role:
@@ -155,37 +189,6 @@ class WarnManager(commands.Cog):
 
         # Envoyer l'embed
         await interaction.response.send_message(embed=embed, ephemeral=True)
-
-    # Gérer les erreurs globalement avec des réponses aléatoires
-    @commands.Cog.listener()
-    async def on_app_command_error(self, interaction: discord.Interaction, error):
-        if isinstance(error, commands.CheckFailure) and str(error) == "unauthorized":
-            # Liste des réponses possibles
-            error_responses = [
-                "T'as cru avoir suffisamment d'importance pour avoir le droit d'utiliser cette commande?",
-                "Essaye encore, mais avec un peu plus d'autorité peut-être.",
-                "Non, tu n'as pas les droits pour faire ça, désolé.",
-                "Tu penses vraiment pouvoir utiliser cette commande? Pas aujourd'hui.",
-                "Accès refusé. Peut-être un jour, mais pas maintenant.",
-                "Les recrutements sont clos pour ce job. Désolé",
-                "Voir avec Soupole"
-            ]
-
-            # Choisir une réponse au hasard
-            random_response = random.choice(error_responses)
-
-            # Envoyer la réponse choisie
-            try:
-                await interaction.followup.send(random_response, ephemeral=False)
-            except discord.errors.InteractionResponded:
-                await interaction.followup.send(random_response, ephemeral=False)
-
-        else:
-            # Gérer les autres erreurs
-            try:
-                await interaction.followup.send("Une erreur est survenue lors de l'exécution de la commande.")
-            except discord.errors.InteractionResponded:
-                await interaction.followup.send("Une erreur est survenue lors de l'exécution de la commande.")
 
 # Ajoute le cog au bot et synchronise les commandes
 async def setup(bot: commands.Bot):
