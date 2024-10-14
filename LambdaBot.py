@@ -39,6 +39,45 @@ async def report(interaction: discord.Interaction, error_report: str):
     await interaction.response.send_message(f''':triangular_flag_on_post: Merci pour votre aide, "{error_report}" a été signalé!''')
 
 @bot.event
+async def on_message(message):
+    # Ignorer les messages du bot
+    if message.author == bot.user:
+        return
+
+    # Chercher des liens YouTube complets ou raccourcis dans le message
+    youtube_regex = r'(https?://(?:www\.)?youtube\.com/watch\?[^ ]+|https?://(?:www\.)?youtu\.be/[^ ]+)'
+    match = re.search(youtube_regex, message.content)
+
+    if match:
+        original_url = match.group(0)
+        cleaned_url = clean_youtube_url(original_url)
+
+        # Si le lien a été modifié, renvoyer la version propre
+        if original_url != cleaned_url:
+            await message.channel.send(f"Lien YouTube nettoyé : {cleaned_url}")
+            await message.delete()  # Supprimer l'ancien message contenant le lien avec tracking
+
+    await bot.process_commands(message)
+
+def clean_youtube_url(url):
+    # Parse l'URL
+    parsed_url = urlparse(url)
+
+    # Gestion des liens 'youtu.be'
+    if 'youtu.be' in parsed_url.netloc:
+        # Extraire l'ID de la vidéo et ignorer tout ce qui suit un '=' ou un '?'
+        video_id = parsed_url.path.split('=')[0].split('?')[0]
+        clean_url = f"https://youtu.be{video_id}"
+    else:
+        # Pour les liens 'youtube.com', ne conserver que le paramètre 'v'
+        query_params = parse_qs(parsed_url.query)
+        clean_params = {key: value for key, value in query_params.items() if key == 'v'}
+        clean_query = urlencode(clean_params, doseq=True)
+        clean_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, clean_query, parsed_url.fragment))
+
+    return clean_url
+
+@bot.event
 async def on_app_command_error(interaction: discord.Interaction, error):
     if isinstance(error, app_commands.CommandInvokeError):
         await interaction.response.send_message("Une erreur est survenue lors de l'exécution de la commande.")
