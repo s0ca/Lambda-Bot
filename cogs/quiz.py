@@ -7,7 +7,7 @@ import asyncio
 from pathlib import Path
 from collections import defaultdict
 
-QUIZ_DIR = Path("data/quizzes")
+QUIZ_DIR = Path("data/quiz")
 
 class MultiQuizButton(discord.ui.Button):
     def __init__(self, label: str, index: int, session):
