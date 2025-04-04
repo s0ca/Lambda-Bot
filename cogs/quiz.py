@@ -28,6 +28,11 @@ class MultiQuizView(discord.ui.View):
         for i, choice in enumerate(question_data["choices"]):
             self.add_item(MultiQuizButton(label=choice, index=i, session=session))
 
+    def disable_all_items(self):
+        for item in self.children:
+            if isinstance(item, discord.ui.Button):
+                item.disabled = True
+
 
 class QuizSession:
     def __init__(self, bot, interaction: discord.Interaction, questions: list):
