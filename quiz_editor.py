@@ -6,8 +6,13 @@ QUIZ_FILE = Path("data/quiz_questions.json")
 
 def load_questions():
     if QUIZ_FILE.exists():
-        with open(QUIZ_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(QUIZ_FILE, "r", encoding="utf-8") as f:
+                data = f.read().strip()
+                return json.loads(data) if data else []
+        except json.JSONDecodeError:
+            print("⚠️ Erreur JSON : fichier corrompu.")
+            return []
     return []
 
 
