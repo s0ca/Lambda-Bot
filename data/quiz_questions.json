@@ -1,0 +1,17 @@
+[
+    {
+        "question": "Quel est le port par défaut de HTTPS ?",
+        "choices": ["80", "22", "443", "8080"],
+        "answer_index": 2
+    },
+    {
+        "question": "En Python, que retourne `len([])` ?",
+        "choices": ["None", "1", "0", "Erreur"],
+        "answer_index": 2
+    },
+    {
+        "question": "Lequel de ces langages est typé statiquement ?",
+        "choices": ["Python", "JavaScript", "C++", "Ruby"],
+        "answer_index": 2
+    }
+]
