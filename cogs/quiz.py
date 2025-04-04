@@ -46,7 +46,7 @@ class QuizButton(discord.ui.Button):
             correct = self.parent.question_data["choices"][self.parent.correct_index]
             await interaction.response.send_message(f"❌ Mauvaise réponse ! C'était : **{correct}**", ephemeral=True)
             self.parent.result = False
-        self.stop()
+        self.parent.stop()
 
 
 class Quiz(commands.Cog):
