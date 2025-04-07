@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créateur de Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Créateur de Quiz</h1>
+        <label for="quiz-name">Nom du quiz :</label>
+        <input type="text" id="quiz-name" placeholder="ex: quiz_histoire">
+
+        <label for="question">Question :</label>
+        <input type="text" id="question" placeholder="Entrez la question">
+
+        <div id="choices-container">
+            <label>Choix (sélectionner la bonne réponse) :</label>
+            <div class="choice">
+                <input type="radio" name="correct" value="0">
+                <input type="text" class="choice-text">
+            </div>
+            <div class="choice">
+                <input type="radio" name="correct" value="1">
+                <input type="text" class="choice-text">
+            </div>
+            <div class="choice">
+                <input type="radio" name="correct" value="2">
+                <input type="text" class="choice-text">
+            </div>
+            <div class="choice">
+                <input type="radio" name="correct" value="3">
+                <input type="text" class="choice-text">
+            </div>
+        </div>
+
+        <button id="add-question">Ajouter la question</button>
+        <hr>
+        <h2>📋 Questions ajoutées</h2>
+        <ul id="question-list"></ul>
+        <button id="download-json">📁 Télécharger le quiz (.json)</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
