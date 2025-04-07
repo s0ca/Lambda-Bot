@@ -35,11 +35,12 @@ class MultiQuizView(discord.ui.View):
 
 
 class QuizSession:
-    def __init__(self, bot, interaction: discord.Interaction, questions: list):
+    def __init__(self, bot, interaction: discord.Interaction, questions: list, timer: int = 5):
         self.bot = bot
         self.interaction = interaction
         self.channel = interaction.channel
-        self.questions = questions[:10]
+        self.questions = questions
+        self.timer = timer
         self.scores = defaultdict(int)
         self.answers = {}  # user_id -> index
         self.current_question = 0
@@ -47,7 +48,7 @@ class QuizSession:
         self.lock = asyncio.Lock()
 
     async def start(self):
-        await self.interaction.response.send_message(f"🎮 Début du quiz multijoueur avec **{len(self.questions)} questions** !", ephemeral=False)
+        await self.interaction.response.send_message(f"🎮 Début du quiz multijoueur avec **{len(self.questions)} questions** (⏱️ {self.timer}s/question)", ephemeral=False)
         await asyncio.sleep(1)
         for i in range(len(self.questions)):
             self.current_question = i
@@ -62,7 +63,7 @@ class QuizSession:
             )
             self.message = await self.channel.send(embed=embed, view=view)
 
-            await asyncio.sleep(5)  # Timer de 5 secondes par question
+            await asyncio.sleep(self.timer)
             view.disable_all_items()
             await self.message.edit(view=view)
             await self.reveal_answer()
@@ -104,6 +105,30 @@ class QuizSession:
         await self.channel.send(f"🏁 Quiz terminé ! Gagnant{'s' if len(winners) > 1 else ''} : {', '.join(mentions)} avec {top_score} point(s) !")
 
 
+class ConfirmDeleteView(discord.ui.View):
+    def __init__(self, path: Path, quiz_name: str):
+        super().__init__(timeout=15)
+        self.path = path
+        self.quiz_name = quiz_name
+        self.confirmed = asyncio.Event()
+        self.result = False
+
+    @discord.ui.button(label="Confirmer la suppression", style=discord.ButtonStyle.danger)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try:
+            self.path.unlink()
+            await interaction.response.edit_message(content=f"🗑️ Quiz **{self.quiz_name}** supprimé avec succès.", view=None)
+            self.result = True
+        except Exception as e:
+            await interaction.response.edit_message(content=f"❌ Erreur lors de la suppression : {e}", view=None)
+        self.confirmed.set()
+
+    @discord.ui.button(label="Annuler", style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.edit_message(content="❌ Suppression annulée.", view=None)
+        self.confirmed.set()
+
+
 class Quiz(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -122,15 +147,21 @@ class Quiz(commands.Cog):
         return None
 
     @app_commands.command(name="quiz", description="Lance un quiz multijoueur sur un thème")
-    @app_commands.describe(quiz="Nom du quiz à lancer")
-    async def quiz(self, interaction: discord.Interaction, quiz: str):
+    @app_commands.describe(
+        quiz="Nom du quiz à lancer",
+        nombre_questions="Nombre de questions (par défaut: 10)",
+        timer_question="Durée en secondes par question (par défaut: 5)"
+    )
+    async def quiz(self, interaction: discord.Interaction, quiz: str, nombre_questions: int = 10, timer_question: int = 5):
         questions = self.load_quiz(quiz)
         if not questions:
             await interaction.response.send_message("❌ Quiz introuvable ou invalide.", ephemeral=True)
             return
 
         random.shuffle(questions)
-        session = QuizSession(self.bot, interaction, questions)
+        questions = questions[:nombre_questions]
+
+        session = QuizSession(self.bot, interaction, questions, timer=timer_question)
         await session.start()
 
     @quiz.autocomplete("quiz")
@@ -139,6 +170,27 @@ class Quiz(commands.Cog):
         return [
             app_commands.Choice(name=q.capitalize(), value=q)
             for q in quizzes if current.lower() in q.lower()
+        ][:25]
+
+    @app_commands.command(name="quiz_delete", description="Supprime un quiz (admin uniquement)")
+    @app_commands.describe(quiz="Nom du quiz à supprimer")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def quiz_delete(self, interaction: discord.Interaction, quiz: str):
+        quizzes = self.get_available_quizzes()
+        if quiz not in quizzes:
+            await interaction.response.send_message("❌ Quiz introuvable.", ephemeral=True)
+            return
+
+        path = QUIZ_DIR / f"{quiz}.json"
+        view = ConfirmDeleteView(path, quiz)
+        await interaction.response.send_message(f"⚠️ Confirmez-vous la suppression du quiz **{quiz}** ?", view=view, ephemeral=True)
+        await view.confirmed.wait()
+
+    @quiz_delete.autocomplete("quiz")
+    async def quiz_delete_autocomplete(self, interaction: discord.Interaction, current: str):
+        return [
+            app_commands.Choice(name=q.capitalize(), value=q)
+            for q in self.get_available_quizzes() if current.lower() in q.lower()
         ][:25]
 
 
